@@ -51,7 +51,7 @@ erDiagram
     varchar     role
     timestamptz assigned_at
   }
-
+  
   AUDIT_LOG {
     uuid        id          PK
     varchar     entity_type
