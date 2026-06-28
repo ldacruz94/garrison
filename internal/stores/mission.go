@@ -36,7 +36,7 @@ func (s *PgMissionStore) GetByID(ctx context.Context, id uuid.UUID) (*models.Mis
 
 	var m models.Mission
 	row := s.db.QueryRow(ctx, query, id)
-	err := row.Scan(&m.Name, &m.Status, &m.CreatedAt)
+	err := row.Scan(&m.ID, &m.Name, &m.Status, &m.CreatedAt)
 	if err != nil {
 		return nil, err
 	}

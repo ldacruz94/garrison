@@ -48,21 +48,6 @@ make seed
 
 Truncates and re-inserts sample missions, personnel, and assets. Safe to run multiple times.
 
-### Other commands
-
-| Command | Description |
-|---|---|
-| `make up` | Start containers in background |
-| `make down` | Stop containers |
-| `make build` | Rebuild and start containers |
-| `make run` | Run API locally without Docker |
-| `make seed` | Seed DB with sample data |
-| `make migrate-up` | Run pending migrations |
-| `make migrate-down` | Roll back migrations |
-| `make logs` | Tail API container logs |
-
-You'll need a CA and client/server certs for mTLS to work.
-
 ## Security
 
 For this type of project, I wanted to explore mTLS to better understand implementing it usin Golang.
