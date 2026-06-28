@@ -1,0 +1,15 @@
+meta {
+  name: Get Personnel By ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/personnel/{{personnelId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  personnelId:
+}

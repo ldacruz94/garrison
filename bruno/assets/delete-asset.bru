@@ -1,0 +1,15 @@
+meta {
+  name: Delete Asset
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/assets/{{assetId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  assetId:
+}

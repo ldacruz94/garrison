@@ -1,0 +1,20 @@
+meta {
+  name: Create Asset
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/assets
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "designation": "AH-64 Apache #7",
+    "asset_type": "rotary_wing",
+    "status": "available",
+    "notes": "Fully armed and fueled"
+  }
+}

@@ -1,0 +1,26 @@
+meta {
+  name: Update Mission
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/missions/{{missionId}}
+  body: json
+  auth: none
+}
+
+vars:pre-request {
+  missionId:
+}
+
+body:json {
+  {
+    "name": "Operation Iron Falcon",
+    "description": "Updated mission description",
+    "status": "active",
+    "mission_type": "reconnaissance",
+    "start_time": "2026-07-01T06:00:00Z",
+    "end_time": "2026-07-01T18:00:00Z"
+  }
+}

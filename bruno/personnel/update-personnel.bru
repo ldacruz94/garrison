@@ -1,0 +1,26 @@
+meta {
+  name: Update Personnel
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/personnel/{{personnelId}}
+  body: json
+  auth: none
+}
+
+vars:pre-request {
+  personnelId:
+}
+
+body:json {
+  {
+    "rank": "Major",
+    "first_name": "James",
+    "last_name": "Mercer",
+    "unit_designator": "1st Special Forces Group",
+    "clearance_level": "top_secret",
+    "status": "active"
+  }
+}

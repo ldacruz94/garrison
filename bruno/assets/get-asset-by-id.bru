@@ -1,0 +1,15 @@
+meta {
+  name: Get Asset By ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/assets/{{assetId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  assetId:
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Create Personnel
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/personnel
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "rank": "Captain",
+    "first_name": "James",
+    "last_name": "Mercer",
+    "unit_designator": "1st Special Forces Group",
+    "clearance_level": "top_secret",
+    "status": "active"
+  }
+}

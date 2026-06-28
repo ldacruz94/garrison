@@ -52,6 +52,7 @@ func (h *MissionHandler) GetAllMissions(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(missions)
 }
 
@@ -68,6 +69,7 @@ func (h *MissionHandler) CreateMission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(newMission)
 }
@@ -91,6 +93,7 @@ func (h *MissionHandler) DeleteMission(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error deleting mission", http.StatusBadRequest)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -107,6 +110,7 @@ func (h *MissionHandler) UpdateMission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(updatedMission)
 }

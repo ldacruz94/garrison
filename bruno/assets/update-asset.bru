@@ -1,0 +1,24 @@
+meta {
+  name: Update Asset
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/assets/{{assetId}}
+  body: json
+  auth: none
+}
+
+vars:pre-request {
+  assetId:
+}
+
+body:json {
+  {
+    "designation": "AH-64 Apache #7",
+    "asset_type": "rotary_wing",
+    "status": "deployed",
+    "notes": "Deployed to forward operating base"
+  }
+}
