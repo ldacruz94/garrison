@@ -27,17 +27,21 @@ func NewMissionStore(db *pgxpool.Pool) *PgMissionStore {
 }
 
 func (s *PgMissionStore) GetByID(ctx context.Context, id uuid.UUID) (*models.Mission, error) {
-
 	query := `
-		SELECT id, name, status, created_at 
-		FROM missions 
+		SELECT id, name, description, status, mission_type, start_time, end_time, created_at, updated_at
+		FROM missions
 		WHERE id = $1
 	`
 
 	var m models.Mission
-	row := s.db.QueryRow(ctx, query, id)
-	err := row.Scan(&m.ID, &m.Name, &m.Status, &m.CreatedAt)
+	err := s.db.QueryRow(ctx, query, id).Scan(
+		&m.ID, &m.Name, &m.Description, &m.Status, &m.MissionType,
+		&m.StartTime, &m.EndTime, &m.CreatedAt, &m.UpdatedAt,
+	)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, errors.New("mission not found")
+		}
 		return nil, err
 	}
 
@@ -45,24 +49,27 @@ func (s *PgMissionStore) GetByID(ctx context.Context, id uuid.UUID) (*models.Mis
 }
 
 func (s *PgMissionStore) GetAll(ctx context.Context) ([]*models.Mission, error) {
-	query := `SELECT id, name, status, created_at FROM missions`
+	query := `
+		SELECT id, name, description, status, mission_type, start_time, end_time, created_at, updated_at
+		FROM missions
+	`
 
 	rows, err := s.db.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
 
 	var missions []*models.Mission
-
 	for rows.Next() {
 		var m models.Mission
-		err := rows.Scan(&m.ID, &m.Name, &m.Status, &m.CreatedAt)
+		err := rows.Scan(
+			&m.ID, &m.Name, &m.Description, &m.Status, &m.MissionType,
+			&m.StartTime, &m.EndTime, &m.CreatedAt, &m.UpdatedAt,
+		)
 		if err != nil {
 			return nil, err
 		}
-
 		missions = append(missions, &m)
 	}
 
@@ -71,19 +78,16 @@ func (s *PgMissionStore) GetAll(ctx context.Context) ([]*models.Mission, error) 
 
 func (s *PgMissionStore) Create(ctx context.Context, m *models.Mission) (*models.Mission, error) {
 	query := `
-		INSERT INTO missions (name, status, created_at)
-		VALUES ($1, $2, $3)
-		RETURNING id, name, status, created_at
+		INSERT INTO missions (name, description, status, mission_type, start_time, end_time)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING id, name, description, status, mission_type, start_time, end_time, created_at, updated_at
 	`
 
 	var created models.Mission
-	err := s.db.QueryRow(ctx, query, m.Name, m.Status, m.CreatedAt).Scan(
-		&created.ID,
-		&created.Name,
-		&created.Status,
-		&created.CreatedAt,
+	err := s.db.QueryRow(ctx, query, m.Name, m.Description, m.Status, m.MissionType, m.StartTime, m.EndTime).Scan(
+		&created.ID, &created.Name, &created.Description, &created.Status, &created.MissionType,
+		&created.StartTime, &created.EndTime, &created.CreatedAt, &created.UpdatedAt,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -92,33 +96,25 @@ func (s *PgMissionStore) Create(ctx context.Context, m *models.Mission) (*models
 }
 
 func (s *PgMissionStore) Delete(ctx context.Context, id uuid.UUID) error {
-
-	query := `DELETE From missions WHERE id = $1`
+	query := `DELETE FROM missions WHERE id = $1`
 
 	_, err := s.db.Exec(ctx, query, id)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (s *PgMissionStore) Update(ctx context.Context, m *models.Mission) (*models.Mission, error) {
 	query := `
 		UPDATE missions
-		SET name = $1, status = $2
-		WHERE id = $3
-		RETURNING id, name, status, created_at
+		SET name = $1, description = $2, status = $3, mission_type = $4, start_time = $5, end_time = $6, updated_at = NOW()
+		WHERE id = $7
+		RETURNING id, name, description, status, mission_type, start_time, end_time, created_at, updated_at
 	`
 
 	var updated models.Mission
-	err := s.db.QueryRow(ctx, query, m.Name, m.Status, m.ID).Scan(
-		&updated.ID,
-		&updated.Name,
-		&updated.Status,
-		&updated.CreatedAt,
+	err := s.db.QueryRow(ctx, query, m.Name, m.Description, m.Status, m.MissionType, m.StartTime, m.EndTime, m.ID).Scan(
+		&updated.ID, &updated.Name, &updated.Description, &updated.Status, &updated.MissionType,
+		&updated.StartTime, &updated.EndTime, &updated.CreatedAt, &updated.UpdatedAt,
 	)
-
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, errors.New("mission not found")

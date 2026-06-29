@@ -19,11 +19,14 @@ services:
   api:
     build: .
     ports:
-      - "8080:8080"
+      - "8443:8443"
+    volumes:
+      - ./certs:/app/certs
     depends_on:
       db:
         condition: service_healthy
     environment:
+      MTLS_ENABLED: true
       DATABASE_URL: postgres://user:password@db:5432/garrison?sslmode=disable
 
 volumes:

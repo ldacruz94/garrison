@@ -98,11 +98,19 @@ func (h *MissionHandler) DeleteMission(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MissionHandler) UpdateMission(w http.ResponseWriter, r *http.Request) {
+	id, err := uuid.Parse(r.PathValue("id"))
+
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
 	var m models.Mission
 	if err := json.NewDecoder(r.Body).Decode(&m); err != nil {
 		http.Error(w, "invalid body", http.StatusBadRequest)
 		return
 	}
+	m.ID = id
 
 	updatedMission, err := h.store.Update(r.Context(), &m)
 	if err != nil {

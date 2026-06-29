@@ -8,5 +8,5 @@ RUN go build -o garrison ./cmd/server
 FROM alpine:3.20
 WORKDIR /app
 COPY --from=builder /app/garrison .
-EXPOSE 8080
+EXPOSE 8443
 CMD ["./garrison"]

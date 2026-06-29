@@ -29,14 +29,14 @@ func NewAssetStore(db *pgxpool.Pool) *PgAssetStore {
 
 func (s *PgAssetStore) GetByID(ctx context.Context, id uuid.UUID) (*models.Asset, error) {
 	query := `
-		SELECT id, designation, asset_type, notes, created_at, updated_at
+		SELECT id, designation, asset_type, status, notes, created_at, updated_at
 		FROM assets
 		WHERE id = $1
 	`
 
 	var a models.Asset
 	err := s.db.QueryRow(ctx, query, id).Scan(
-		&a.ID, &a.Designation, &a.AssetType, &a.Notes, &a.CreatedAt, &a.UpdatedAt,
+		&a.ID, &a.Designation, &a.AssetType, &a.Status, &a.Notes, &a.CreatedAt, &a.UpdatedAt,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -49,7 +49,7 @@ func (s *PgAssetStore) GetByID(ctx context.Context, id uuid.UUID) (*models.Asset
 }
 
 func (s *PgAssetStore) GetAll(ctx context.Context) ([]*models.Asset, error) {
-	query := `SELECT id, designation, asset_type, notes, created_at, updated_at FROM assets`
+	query := `SELECT id, designation, asset_type, status, notes, created_at, updated_at FROM assets`
 
 	rows, err := s.db.Query(ctx, query)
 	if err != nil {
@@ -60,7 +60,7 @@ func (s *PgAssetStore) GetAll(ctx context.Context) ([]*models.Asset, error) {
 	var assets []*models.Asset
 	for rows.Next() {
 		var a models.Asset
-		err := rows.Scan(&a.ID, &a.Designation, &a.AssetType, &a.Notes, &a.CreatedAt, &a.UpdatedAt)
+		err := rows.Scan(&a.ID, &a.Designation, &a.AssetType, &a.Status, &a.Notes, &a.CreatedAt, &a.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -72,14 +72,14 @@ func (s *PgAssetStore) GetAll(ctx context.Context) ([]*models.Asset, error) {
 
 func (s *PgAssetStore) Create(ctx context.Context, a *models.Asset) (*models.Asset, error) {
 	query := `
-		INSERT INTO assets (designation, asset_type, notes)
-		VALUES ($1, $2, $3)
-		RETURNING id, designation, asset_type, notes, created_at, updated_at
+		INSERT INTO assets (designation, asset_type, status, notes)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id, designation, asset_type, status, notes, created_at, updated_at
 	`
 
 	var created models.Asset
-	err := s.db.QueryRow(ctx, query, a.Designation, a.AssetType, a.Notes).Scan(
-		&created.ID, &created.Designation, &created.AssetType, &created.Notes,
+	err := s.db.QueryRow(ctx, query, a.Designation, a.AssetType, a.Status, a.Notes).Scan(
+		&created.ID, &created.Designation, &created.AssetType, &created.Status, &created.Notes,
 		&created.CreatedAt, &created.UpdatedAt,
 	)
 	if err != nil {
@@ -107,14 +107,14 @@ func (s *PgAssetStore) Delete(ctx context.Context, id uuid.UUID) error {
 func (s *PgAssetStore) Update(ctx context.Context, a *models.Asset) (*models.Asset, error) {
 	query := `
 		UPDATE assets
-		SET designation = $1, asset_type = $2, notes = $3
-		WHERE id = $4
-		RETURNING id, designation, asset_type, notes, created_at, updated_at
+		SET designation = $1, asset_type = $2, status = $3, notes = $4, updated_at = NOW()
+		WHERE id = $5
+		RETURNING id, designation, asset_type, status, notes, created_at, updated_at
 	`
 
 	var updated models.Asset
-	err := s.db.QueryRow(ctx, query, a.Designation, a.AssetType, a.Notes, a.ID).Scan(
-		&updated.ID, &updated.Designation, &updated.AssetType, &updated.Notes,
+	err := s.db.QueryRow(ctx, query, a.Designation, a.AssetType, a.Status, a.Notes, a.ID).Scan(
+		&updated.ID, &updated.Designation, &updated.AssetType, &updated.Status, &updated.Notes,
 		&updated.CreatedAt, &updated.UpdatedAt,
 	)
 	if err != nil {

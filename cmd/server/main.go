@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"fmt"
 	"garrison/internal/handlers"
 	"garrison/internal/stores"
 	"log"
@@ -52,8 +55,56 @@ func main() {
 	mux.HandleFunc("DELETE /personnel/{id}", personnelHandler.DeletePersonnel)
 	mux.HandleFunc("PUT /personnel/{id}", personnelHandler.UpdatePersonnel)
 
-	log.Println("Server starting on :8080")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
-		log.Fatal(err)
+	port := 8080
+	var server *http.Server
+
+	if os.Getenv("MTLS_ENABLED") == "true" {
+		port = 8443
+
+		certPool, err := loadCaPool()
+
+		if err != nil {
+			log.Fatal("Error loading cert pool")
+		}
+
+		tlsConfig := &tls.Config{
+			ClientCAs:  certPool,
+			ClientAuth: tls.RequireAndVerifyClientCert,
+			MinVersion: tls.VersionTLS13,
+		}
+
+		server = &http.Server{
+			Addr:      fmt.Sprintf(":%d", port),
+			Handler:   mux,
+			TLSConfig: tlsConfig,
+		}
+
+		log.Println(fmt.Sprintf("Listening on port :%d", port))
+		log.Fatal(server.ListenAndServeTLS("certs/server.crt", "certs/server.key"))
+		if err := http.ListenAndServe(fmt.Sprintf(":%d", port), mux); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		server = &http.Server{
+			Addr:    fmt.Sprintf(":%d", port),
+			Handler: mux,
+		}
+
+		log.Println(fmt.Sprintf("Listening on port :%d", port))
+		log.Fatal(server.ListenAndServe())
 	}
+
+}
+
+func loadCaPool() (*x509.CertPool, error) {
+	caCert, err := os.ReadFile("certs/ca.crt")
+
+	if err != nil {
+		return nil, err
+	}
+
+	certPool := x509.NewCertPool()
+	certPool.AppendCertsFromPEM(caCert)
+
+	return certPool, nil
 }
