@@ -11,7 +11,7 @@ Garrison is really just a simple CRUD-based API that lets you create and track m
 | Entity | What it is |
 |---|---|
 | **Mission** | An operation with a type, status, and time window |
-| **Personnel** | Service members — rank, unit, clearance level |
+| **Personnel** | Service members: rank, unit, clearance level |
 | **Asset** | Equipment or systems assigned to missions |
 | **Audit Log** | Append-only record of every change across the system |
 
@@ -30,7 +30,7 @@ NOTE: This is currently a WIP and I'll be adding additional entities and feature
 
 ### With Docker (mTLS enabled)
 
-Generate certs first — only needed once:
+Generate certs first (only needed once):
 
 ```bash
 make gen-certs
@@ -82,7 +82,7 @@ curl --cacert certs/ca.crt \
      --key certs/client.key \
      https://localhost:8443/missions
 
-# Should fail — no client cert
+# Should fail - no client cert
 curl --cacert certs/ca.crt https://localhost:8443/missions
 ```
 
