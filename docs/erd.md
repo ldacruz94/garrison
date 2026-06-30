@@ -1,4 +1,4 @@
-# Garrison — Entity Relationship Diagram
+# Garrison Entity Relationship Diagram
 
 ```mermaid
 erDiagram
